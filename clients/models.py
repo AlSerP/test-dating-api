@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
@@ -16,10 +17,16 @@ class CustomUser(AbstractUser):
     is_male = models.BooleanField(default=True)
     avatar = models.ImageField(upload_to=get_avatar_directory_path, null=True, default=None)
 
+    AVATAR_SIZE = (100, 100)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
-
+    
     objects = CustomUserManager()
+
+    @staticmethod
+    def get_avatar_size(self):
+        return self.AVATAR_SIZE
 
     def __str__(self):
         return self.email
