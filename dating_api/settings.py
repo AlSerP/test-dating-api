@@ -128,3 +128,12 @@ STATIC_ROOT = BASE_DIR / 'static'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'clients.CustomUser'
+
+# Mailer setttings
+# Set your own ower TODO
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+EMAIL_HOST = 'TODO'
+EMAIL_HOST_USER = 'TODO'
+EMAIL_HOST_PASSWORD = 'TODO'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
