@@ -5,6 +5,7 @@ from rest_framework import status
 from .serializers import UserSerializer
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from . import models
 
 
 User = get_user_model()
@@ -33,6 +34,8 @@ class UserList(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    serializer_class = UserSerializer
+
     def get(self, request):
         print(User.objects.get(id=30).get_distance_to(User.objects.get(id=31)))
         FILTER_PARAMS = ['first_name', 'last_name', 'is_male']
@@ -55,6 +58,9 @@ class UserList(APIView):
         serializer_for_queryset = UserSerializer(instance=queryset, many=True)
 
         return Response(serializer_for_queryset.data)
+    
+    def get_queryset(self):
+        return User.objects.all()
 
 
 class UserCreate(APIView):
