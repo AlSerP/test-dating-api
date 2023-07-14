@@ -11,11 +11,20 @@ User = get_user_model()
 
 class UserList(APIView):
     """
-    List all users.
+    List users with query filters.
     """
     def get(self, request):
-        queryset = User.objects.all()
+        FILTER_PARAMS = ['first_name', 'last_name', 'is_male']
+
+        filter_settings = {}
+        for param in FILTER_PARAMS:
+            param_value = self.request.query_params.get(param)
+            if param_value:
+                filter_settings[param] = param_value
+
+        queryset = User.objects.all().filter(**filter_settings)
         serializer_for_queryset = UserSerializer(instance=queryset, many=True)
+
         return Response(serializer_for_queryset.data)
 
 
