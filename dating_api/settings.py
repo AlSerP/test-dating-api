@@ -137,3 +137,9 @@ EMAIL_HOST_USER = 'TODO'
 EMAIL_HOST_PASSWORD = 'TODO'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+    ]
+}

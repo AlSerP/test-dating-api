@@ -3,17 +3,38 @@ from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import UserSerializer
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+
 User = get_user_model()
+
+
+class LoginView(APIView):
+    """
+    User login by email and password.
+    """
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+  
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),
+            'auth': str(request.auth),
+        }
+        return Response(content)
 
 
 class UserList(APIView):
     """
     List users with query filters.
     """
+
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
+        print(User.objects.get(id=30).get_distance_to(User.objects.get(id=31)))
         FILTER_PARAMS = ['first_name', 'last_name', 'is_male']
 
         filter_settings = {}
@@ -23,6 +44,14 @@ class UserList(APIView):
                 filter_settings[param] = param_value
 
         queryset = User.objects.all().filter(**filter_settings)
+
+        max_distance_value = float(self.request.query_params.get('max_distance'))
+        if max_distance_value:
+            for user in queryset:
+                distance = request.user.get_distance_to(user)
+                if distance > max_distance_value: 
+                    queryset = queryset.exclude(id=user.id)
+
         serializer_for_queryset = UserSerializer(instance=queryset, many=True)
 
         return Response(serializer_for_queryset.data)
@@ -46,21 +75,20 @@ class UserMatch(APIView):
     """
     Send a match from <id> user to another user.
     """
-    def post(self, request, id):
-        print(request.data)
 
-        target_id = request.data.get('user_id', None)
-        if not target_id:
-            return Response({"user_id": "Required"}, status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
+        print(request.data)
         
-        if not User.objects.filter(pk=id).exists() or not User.objects.filter(pk=target_id).exists():
+        if not User.objects.filter(pk=id).exists():
             return Response({"error": "There is no such User"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if int(id) == int(target_id):
+        if int(id) == request.user.id:
             return Response({"error": "You are perfect, but you can not match yourself"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user_from = User.objects.get(pk=id)
-        target = User.objects.get(pk=target_id)
+        user_from = request.user
+        target = User.objects.get(pk=id)
 
         response = user_from.match(target)
 

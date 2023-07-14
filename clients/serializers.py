@@ -9,10 +9,8 @@ from dating_api.settings import STATIC_ROOT
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
-        print(type(validated_data.get('avatar', None)))
-        origin_image = PilImage.open(validated_data.get('avatar', None))
-
-        if origin_image:
+        if validated_data.get('avatar', None):
+            origin_image = PilImage.open(validated_data.get('avatar', None))
             new_image = self.__image_prep(origin_image)
             validated_data['avatar'] = InMemoryUploadedFile(
                 self.__image_prep(origin_image),
@@ -52,7 +50,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'first_name', 'last_name', 'avatar', 'is_male', 'password')
+        fields = ('id', 'email', 'first_name', 'last_name', 'avatar', 'is_male', 'password', 'long', 'lat')
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'id': {'read_only': True}
         }
